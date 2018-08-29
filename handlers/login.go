@@ -76,6 +76,11 @@ func Login(rw http.ResponseWriter, req *http.Request) {
 	if req.TLS != nil {
 		scheme = "https"
 	}
+
+	if forwardedScheme := req.Header.Get("X-Forwarded-Proto"); forwardedScheme != "" {
+		scheme = forwardedScheme
+	}
+
 	host := "localhost"
 	if req.Host != "" {
 		host = req.Host
