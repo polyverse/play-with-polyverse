@@ -2,12 +2,16 @@ version: '3.2'
 services:
     haproxy:
         container_name: haproxy
-        image: haproxy
+        image: bradjonesllc/docker-haproxy-letsencrypt
         ports:
-            - "80:8080"
+            - "80:80"
+            - "443:443"
+        environment:
+            - CERTS=play.polyverse.io
+            - EMAIL=archis@polyverse.io
         volumes:
-            - ./haproxy:/usr/local/etc/haproxy
-            
+            - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+            - /etc/letsencrypt:/etc/letsencrypt
     pwd:
         # pwd daemon container always needs to be named this way
         container_name: pwd
@@ -34,7 +38,7 @@ services:
         ports:
             - "8022:22"
             - "8053:53"
-            - "443:443"
+            - "8443:443"
 volumes:
     sessions:
     networks:
