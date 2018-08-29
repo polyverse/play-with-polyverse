@@ -11,6 +11,8 @@ services:
             - EMAIL=archis@polyverse.io
         volumes:
             - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+            - ./haproxy/cors.lua:/usr/local/etc/haproxy/cors.lua
+            - ./haproxy/cors-origins.lst:/usr/local/etc/haproxy/cors-origins.lst
             - /etc/letsencrypt:/etc/letsencrypt
     pwd:
         # pwd daemon container always needs to be named this way
