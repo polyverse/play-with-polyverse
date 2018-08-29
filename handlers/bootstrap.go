@@ -235,8 +235,8 @@ func initOauthProviders(p *types.Playground) {
 
 		config.Providers[p.Id]["github"] = conf
 
-	} else if github_client_id, ok := os.LookupEnv(ENV_GITHUB_CLIENT_ID); ok {
-		if github_client_secret, ok := os.LookupEnv(ENV_GITHUB_CLIENT_SECRET); ok {
+	} else if github_client_id, ok := os.LookupEnv(ENV_GITHUB_CLIENT_ID); ok && github_client_id != "" {
+		if github_client_secret, ok := os.LookupEnv(ENV_GITHUB_CLIENT_SECRET); ok && github_client_secret != "" {
 			config.Providers[p.Id]["github"] = &oauth2.Config{
 				ClientID:     github_client_id,
 				ClientSecret: github_client_secret,
@@ -255,8 +255,8 @@ func initOauthProviders(p *types.Playground) {
 		}
 
 		config.Providers[p.Id]["facebook"] = conf
-	} else if facebook_client_id, ok := os.LookupEnv(ENV_FACEBOOK_CLIENT_ID); ok {
-		if facebook_client_secret, ok := os.LookupEnv(ENV_FACEBOOK_CLIENT_SECRET); ok {
+	} else if facebook_client_id, ok := os.LookupEnv(ENV_FACEBOOK_CLIENT_ID); ok && facebook_client_id != ""{
+		if facebook_client_secret, ok := os.LookupEnv(ENV_FACEBOOK_CLIENT_SECRET); ok && facebook_client_secret != "" {
 			config.Providers[p.Id]["facebook"] = &oauth2.Config{
 				ClientID:     facebook_client_id,
 				ClientSecret: facebook_client_secret,
