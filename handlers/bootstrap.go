@@ -27,11 +27,17 @@ import (
 	"github.com/urfave/negroni"
 	oauth2FB "golang.org/x/oauth2/facebook"
 	oauth2Github "golang.org/x/oauth2/github"
+	"os"
 )
 
 var core pwd.PWDApi
 var e event.EventApi
 var landings = map[string][]byte{}
+
+const (
+	ENV_GITHUB_CLIENT_ID     = "GITHUB_CLIENT_ID"
+	ENV_GITHUB_CLIENT_SECRET = "GITHUB_CLIENT_SECRET"
+)
 
 var latencyHistogramVec = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 	Name:    "pwd_handlers_duration_ms",
@@ -216,6 +222,15 @@ func initAssets(p *types.Playground) {
 
 func initOauthProviders(p *types.Playground) {
 	config.Providers[p.Id] = map[string]*oauth2.Config{}
+
+	if github_client_id, ok := os.LookupEnv(ENV_GITHUB_CLIENT_ID); ok {
+		if github_client_secret, ok := os.LookupEnv(ENV_GITHUB_CLIENT_SECRET); ok {
+			config.Providers[p.Id]["github"] = &oauth2.Config{
+				ClientID:     github_client_id,
+				ClientSecret: github_client_secret,
+			}
+		}
+	}
 
 	if p.GithubClientID != "" && p.GithubClientSecret != "" {
 		conf := &oauth2.Config{
