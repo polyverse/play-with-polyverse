@@ -37,6 +37,8 @@ var landings = map[string][]byte{}
 const (
 	ENV_GITHUB_CLIENT_ID     = "GITHUB_CLIENT_ID"
 	ENV_GITHUB_CLIENT_SECRET = "GITHUB_CLIENT_SECRET"
+	ENV_FACEBOOK_CLIENT_ID     = "FACEBOOK_CLIENT_ID"
+	ENV_FACEBOOK_CLIENT_SECRET = "FACEBOOK_CLIENT_SECRET"
 )
 
 var latencyHistogramVec = prometheus.NewHistogramVec(prometheus.HistogramOpts{
@@ -223,15 +225,6 @@ func initAssets(p *types.Playground) {
 func initOauthProviders(p *types.Playground) {
 	config.Providers[p.Id] = map[string]*oauth2.Config{}
 
-	if github_client_id, ok := os.LookupEnv(ENV_GITHUB_CLIENT_ID); ok {
-		if github_client_secret, ok := os.LookupEnv(ENV_GITHUB_CLIENT_SECRET); ok {
-			config.Providers[p.Id]["github"] = &oauth2.Config{
-				ClientID:     github_client_id,
-				ClientSecret: github_client_secret,
-			}
-		}
-	}
-
 	if p.GithubClientID != "" && p.GithubClientSecret != "" {
 		conf := &oauth2.Config{
 			ClientID:     p.GithubClientID,
@@ -241,7 +234,18 @@ func initOauthProviders(p *types.Playground) {
 		}
 
 		config.Providers[p.Id]["github"] = conf
+
+	} else if github_client_id, ok := os.LookupEnv(ENV_GITHUB_CLIENT_ID); ok {
+		if github_client_secret, ok := os.LookupEnv(ENV_GITHUB_CLIENT_SECRET); ok {
+			config.Providers[p.Id]["github"] = &oauth2.Config{
+				ClientID:     github_client_id,
+				ClientSecret: github_client_secret,
+				Scopes:       []string{"user:email"},
+				Endpoint:     oauth2Github.Endpoint,
+			}
+		}
 	}
+
 	if p.FacebookClientID != "" && p.FacebookClientSecret != "" {
 		conf := &oauth2.Config{
 			ClientID:     p.FacebookClientID,
@@ -251,7 +255,17 @@ func initOauthProviders(p *types.Playground) {
 		}
 
 		config.Providers[p.Id]["facebook"] = conf
+	} else if facebook_client_id, ok := os.LookupEnv(ENV_FACEBOOK_CLIENT_ID); ok {
+		if facebook_client_secret, ok := os.LookupEnv(ENV_FACEBOOK_CLIENT_SECRET); ok {
+			config.Providers[p.Id]["facebook"] = &oauth2.Config{
+				ClientID:     facebook_client_id,
+				ClientSecret: facebook_client_secret,
+				Scopes:       []string{"email", "public_profile"},
+				Endpoint:     oauth2FB.Endpoint,
+			}
+		}
 	}
+
 	if p.DockerClientID != "" && p.DockerClientSecret != "" {
 		oauth2.RegisterBrokenAuthHeaderProvider(".id.docker.com")
 		conf := &oauth2.Config{
