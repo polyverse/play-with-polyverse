@@ -1,3 +1,5 @@
 play-with-docker
 node_modules
 vendor
+sessions
+networks
