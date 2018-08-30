@@ -1,4 +1,4 @@
-ARG VERSION=docker:stable-dind
+ARG VERSION=polyverse/dind-alpine
 FROM ${VERSION}
 
 RUN apk add --no-cache git tmux py2-pip apache2-utils vim build-base gettext-dev curl bash-completion bash util-linux jq openssh openssl tree
