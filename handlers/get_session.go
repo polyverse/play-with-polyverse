@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/play-with-docker/play-with-docker/pwd/types"
-	"github.com/play-with-docker/play-with-docker/storage"
+	"github.com/polyverse/play-with-polyverse/pwd/types"
+	"github.com/polyverse/play-with-polyverse/storage"
 )
 
 type SessionInfo struct {

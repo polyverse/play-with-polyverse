@@ -1,8 +1,8 @@
 package pwd
 
 import (
-	"github.com/play-with-docker/play-with-docker/pwd/types"
-	"github.com/play-with-docker/play-with-docker/storage"
+	"github.com/polyverse/play-with-polyverse/pwd/types"
+	"github.com/polyverse/play-with-polyverse/storage"
 )
 
 func (p *pwd) UserNewLoginRequest(providerName string) (*types.LoginRequest, error) {

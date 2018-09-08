@@ -5,9 +5,9 @@ import (
 	"log"
 
 	"docker.io/go-docker/api/types/swarm"
-	"github.com/play-with-docker/play-with-docker/docker"
-	"github.com/play-with-docker/play-with-docker/event"
-	"github.com/play-with-docker/play-with-docker/pwd/types"
+	"github.com/polyverse/play-with-polyverse/docker"
+	"github.com/polyverse/play-with-polyverse/event"
+	"github.com/polyverse/play-with-polyverse/pwd/types"
 )
 
 type checkSwarmStatus struct {

@@ -8,8 +8,8 @@ import (
 	"time"
 
 	client "docker.io/go-docker"
-	"github.com/play-with-docker/play-with-docker/pwd/types"
-	"github.com/play-with-docker/play-with-docker/storage"
+	"github.com/polyverse/play-with-polyverse/pwd/types"
+	"github.com/polyverse/play-with-polyverse/storage"
 )
 
 type localCachedFactory struct {

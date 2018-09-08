@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/play-with-docker/play-with-docker/router"
+	"github.com/polyverse/play-with-polyverse/router"
 	"github.com/stretchr/testify/assert"
 )
 

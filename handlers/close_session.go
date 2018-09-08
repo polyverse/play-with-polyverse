@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/play-with-docker/play-with-docker/storage"
+	"github.com/polyverse/play-with-polyverse/storage"
 )
 
 func CloseSession(rw http.ResponseWriter, req *http.Request) {
