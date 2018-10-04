@@ -7,12 +7,12 @@ import (
 	"net"
 	"time"
 
-	"github.com/polyverse/play-with-polyverse/docker"
-	"github.com/polyverse/play-with-polyverse/event"
-	"github.com/polyverse/play-with-polyverse/id"
-	"github.com/polyverse/play-with-polyverse/provisioner"
-	"github.com/polyverse/play-with-polyverse/pwd/types"
-	"github.com/polyverse/play-with-polyverse/storage"
+	"github.com/play-with-docker/play-with-docker/docker"
+	"github.com/play-with-docker/play-with-docker/event"
+	"github.com/play-with-docker/play-with-docker/id"
+	"github.com/play-with-docker/play-with-docker/provisioner"
+	"github.com/play-with-docker/play-with-docker/pwd/types"
+	"github.com/play-with-docker/play-with-docker/storage"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

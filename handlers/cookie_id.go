@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/polyverse/play-with-polyverse/config"
+	"github.com/play-with-docker/play-with-docker/config"
 )
 
 type CookieID struct {

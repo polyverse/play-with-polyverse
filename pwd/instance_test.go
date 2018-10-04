@@ -7,14 +7,14 @@ import (
 	"time"
 
 	dtypes "docker.io/go-docker/api/types"
-	"github.com/polyverse/play-with-polyverse/config"
-	"github.com/polyverse/play-with-polyverse/docker"
-	"github.com/polyverse/play-with-polyverse/event"
-	"github.com/polyverse/play-with-polyverse/id"
-	"github.com/polyverse/play-with-polyverse/provisioner"
-	"github.com/polyverse/play-with-polyverse/pwd/types"
-	"github.com/polyverse/play-with-polyverse/router"
-	"github.com/polyverse/play-with-polyverse/storage"
+	"github.com/play-with-docker/play-with-docker/config"
+	"github.com/play-with-docker/play-with-docker/docker"
+	"github.com/play-with-docker/play-with-docker/event"
+	"github.com/play-with-docker/play-with-docker/id"
+	"github.com/play-with-docker/play-with-docker/provisioner"
+	"github.com/play-with-docker/play-with-docker/pwd/types"
+	"github.com/play-with-docker/play-with-docker/router"
+	"github.com/play-with-docker/play-with-docker/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -98,7 +98,7 @@ func TestInstanceNew(t *testing.T) {
 		ServerKey:     nil,
 		CACert:        nil,
 		Privileged:    true,
-		HostFQDN:      "something.play-with-polyverse.com",
+		HostFQDN:      "something.play-with-docker.com",
 		Networks:      []string{session.Id},
 	}
 	_d.On("ContainerCreate", expectedContainerOpts).Return(nil)
@@ -106,7 +106,7 @@ func TestInstanceNew(t *testing.T) {
 	_s.On("InstancePut", mock.AnythingOfType("*types.Instance")).Return(nil)
 	_e.M.On("Emit", event.INSTANCE_NEW, "aaaabbbbcccc", []interface{}{"aaaabbbb_aaaabbbbcccc", "10.0.0.1", "node1", "ip10-0-0-1-aaaabbbbcccc"}).Return()
 
-	instance, err := p.InstanceNew(session, types.InstanceConfig{PlaygroundFQDN: "something.play-with-polyverse.com"})
+	instance, err := p.InstanceNew(session, types.InstanceConfig{PlaygroundFQDN: "something.play-with-docker.com"})
 	assert.Nil(t, err)
 
 	assert.Equal(t, expectedInstance, *instance)

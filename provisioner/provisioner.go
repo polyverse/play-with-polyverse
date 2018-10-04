@@ -6,7 +6,7 @@ import (
 	"io"
 	"net"
 
-	"github.com/polyverse/play-with-polyverse/pwd/types"
+	"github.com/play-with-docker/play-with-docker/pwd/types"
 )
 
 var OutOfCapacityError = errors.New("OutOfCapacity")

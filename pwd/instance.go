@@ -6,9 +6,9 @@ import (
 	"net"
 	"time"
 
-	"github.com/polyverse/play-with-polyverse/config"
-	"github.com/polyverse/play-with-polyverse/event"
-	"github.com/polyverse/play-with-polyverse/pwd/types"
+	"github.com/play-with-docker/play-with-docker/config"
+	"github.com/play-with-docker/play-with-docker/event"
+	"github.com/play-with-docker/play-with-docker/pwd/types"
 )
 
 func (p *pwd) InstanceResizeTerminal(instance *types.Instance, rows, cols uint) error {

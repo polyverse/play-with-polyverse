@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	dockerTypes "docker.io/go-docker/api/types"
-	"github.com/polyverse/play-with-polyverse/docker"
-	"github.com/polyverse/play-with-polyverse/event"
-	"github.com/polyverse/play-with-polyverse/pwd/types"
-	"github.com/polyverse/play-with-polyverse/storage"
+	"github.com/play-with-docker/play-with-docker/docker"
+	"github.com/play-with-docker/play-with-docker/event"
+	"github.com/play-with-docker/play-with-docker/pwd/types"
+	"github.com/play-with-docker/play-with-docker/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

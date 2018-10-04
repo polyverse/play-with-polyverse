@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/polyverse/play-with-polyverse/event"
-	"github.com/polyverse/play-with-polyverse/k8s"
-	"github.com/polyverse/play-with-polyverse/pwd/types"
+	"github.com/play-with-docker/play-with-docker/event"
+	"github.com/play-with-docker/play-with-docker/k8s"
+	"github.com/play-with-docker/play-with-docker/pwd/types"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

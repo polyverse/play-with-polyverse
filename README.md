@@ -1,11 +1,11 @@
-# play-with-polyverse
+# play-with-docker
 
 Play With Docker gives you the experience of having a free Alpine Linux Virtual Machine in the cloud
 where you can build and run Docker containers and even create clusters with Docker features like Swarm Mode.
 
 Under the hood DIND or Docker-in-Docker is used to give the effect of multiple VMs/PCs.
 
-A live version is available at: http://play-with-polyverse.com/
+A live version is available at: http://play-with-docker.com/
 
 ## Requirements
 
@@ -57,7 +57,7 @@ If you want to make changes to the `dind` image being used, make your changes to
 ### How can I connect to a published port from the outside world?
 
 
-If you need to access your services from outside, use the following URL pattern `http://ip<hyphen-ip>-<session_jd>-<port>.direct.labs.play-with-polyverse.com` (i.e: http://ip-2-135-3-b8ir6vbg5vr00095iil0-8080.direct.labs.play-with-polyverse.com).
+If you need to access your services from outside, use the following URL pattern `http://ip<hyphen-ip>-<session_jd>-<port>.direct.labs.play-with-docker.com` (i.e: http://ip-2-135-3-b8ir6vbg5vr00095iil0-8080.direct.labs.play-with-docker.com).
 
 ### Why is PWD running in ports 80 and 443?, Can I change that?.
 

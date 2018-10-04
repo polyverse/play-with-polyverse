@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/polyverse/play-with-polyverse/config"
-	"github.com/polyverse/play-with-polyverse/pwd/types"
+	"github.com/play-with-docker/play-with-docker/config"
+	"github.com/play-with-docker/play-with-docker/pwd/types"
 )
 
 func NewPlayground(rw http.ResponseWriter, req *http.Request) {

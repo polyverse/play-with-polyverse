@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/polyverse/play-with-polyverse/event"
-	"github.com/polyverse/play-with-polyverse/pwd/types"
+	"github.com/play-with-docker/play-with-docker/event"
+	"github.com/play-with-docker/play-with-docker/pwd/types"
 
 	"golang.org/x/text/encoding"
 )
