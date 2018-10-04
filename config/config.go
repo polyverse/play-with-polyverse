@@ -25,7 +25,7 @@ var (
 
 	PortNumber, PWDContainerName, L2ContainerName, L2Subdomain, HashKey, L2RouterIP,
 	DindVolumeSize, CookieHashKey, CookieBlockKey,
-	DefaultDinDImage, DefaultSessionDuration, S3Bucket, AdminToken string
+	DefaultDinDImage, DefaultSessionDuration, S3Bucket, AdminToken, SessionsFile string
 	MaxLoadAvg   float64
 	SecureCookie *securecookie.SecureCookie
 
@@ -39,6 +39,7 @@ var (
 
 func ParseFlags() {
 	flag.StringVar(&PortNumber, "port", "3000", "Port number")
+	flag.StringVar(&SessionsFile, "sessions-file", "./pwd/sessions", "File to store sessions in.")
 	flag.StringVar(&PWDContainerName, "name", "pwd", "Container name used to run PWD (used to be able to connect it to the networks it creates)")
 	flag.StringVar(&L2ContainerName, "l2", "l2", "Container name used to run L2 Router")
 	flag.StringVar(&L2RouterIP, "l2-ip", "", "Host IP address for L2 router ping response")

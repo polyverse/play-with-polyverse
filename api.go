@@ -65,16 +65,25 @@ func main() {
 }
 
 func initStorage() storage.StorageApi {
-	cfg, err := external.LoadDefaultAWSConfig()
-	if err != nil {
-		log.Fatal("Error initializing AWS Config: ", err)
-	}
+	if config.SessionsFile != "" {
+		s, err := storage.NewFileStorage(config.SessionsFile)
+		if err != nil {
+			log.Fatal("Error initializing StorageAPI: ", err)
+		}
 
-	s, err := storage.S3Storage(cfg, config.S3Bucket)
-	if err != nil && !os.IsNotExist(err) {
-		log.Fatal("Error initializing StorageAPI: ", err)
+		return s
+	} else {
+		cfg, err := external.LoadDefaultAWSConfig()
+		if err != nil {
+			log.Fatal("Error initializing AWS Config: ", err)
+		}
+
+		s, err := storage.S3Storage(cfg, config.S3Bucket)
+		if err != nil && !os.IsNotExist(err) {
+			log.Fatal("Error initializing StorageAPI: ", err)
+		}
+		return s
 	}
-	return s
 }
 
 func initEvent() event.EventApi {
