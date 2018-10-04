@@ -459,7 +459,7 @@ func proxyConn(src, dst net.Conn) {
 
 func NewRouter(director Director) *proxyRouter {
 	return &proxyRouter{
-		director:  director,
+		director: director,
 		dialer: &net.Dialer{
 			Timeout:   30 * time.Second,
 			KeepAlive: 30 * time.Second,

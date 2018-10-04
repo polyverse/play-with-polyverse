@@ -8,9 +8,9 @@ import (
 	dtypes "docker.io/go-docker/api/types"
 	"github.com/polyverse/play-with-polyverse/config"
 	"github.com/polyverse/play-with-polyverse/docker"
+	"github.com/polyverse/play-with-polyverse/docker-provisioner"
 	"github.com/polyverse/play-with-polyverse/event"
 	"github.com/polyverse/play-with-polyverse/id"
-	"github.com/polyverse/play-with-polyverse/provisioner"
 	"github.com/polyverse/play-with-polyverse/pwd/types"
 	"github.com/polyverse/play-with-polyverse/storage"
 	"github.com/stretchr/testify/assert"
@@ -24,8 +24,8 @@ func TestClientNew(t *testing.T) {
 	_d := &docker.Mock{}
 	_e := &event.Mock{}
 
-	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewDinD(_g, _f, _s))
-	sp := provisioner.NewOverlaySessionProvisioner(_f)
+	ipf := docker_provisioner.NewInstanceProvisionerFactory(docker_provisioner.NewDinD(_g, _f, _s))
+	sp := docker_provisioner.NewOverlaySessionProvisioner(_f)
 
 	_g.On("NewId").Return("aaaabbbbcccc")
 	_f.On("GetForSession", mock.AnythingOfType("*types.Session")).Return(_d, nil)
@@ -67,8 +67,8 @@ func TestClientCount(t *testing.T) {
 	_g := &id.MockGenerator{}
 	_d := &docker.Mock{}
 	_e := &event.Mock{}
-	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewDinD(_g, _f, _s))
-	sp := provisioner.NewOverlaySessionProvisioner(_f)
+	ipf := docker_provisioner.NewInstanceProvisionerFactory(docker_provisioner.NewDinD(_g, _f, _s))
+	sp := docker_provisioner.NewOverlaySessionProvisioner(_f)
 
 	_g.On("NewId").Return("aaaabbbbcccc")
 	_f.On("GetForSession", mock.AnythingOfType("*types.Session")).Return(_d, nil)
@@ -108,8 +108,8 @@ func TestClientResizeViewPort(t *testing.T) {
 	_g := &id.MockGenerator{}
 	_d := &docker.Mock{}
 	_e := &event.Mock{}
-	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewDinD(_g, _f, _s))
-	sp := provisioner.NewOverlaySessionProvisioner(_f)
+	ipf := docker_provisioner.NewInstanceProvisionerFactory(docker_provisioner.NewDinD(_g, _f, _s))
+	sp := docker_provisioner.NewOverlaySessionProvisioner(_f)
 
 	_g.On("NewId").Return("aaaabbbbcccc")
 	_f.On("GetForSession", mock.AnythingOfType("*types.Session")).Return(_d, nil)

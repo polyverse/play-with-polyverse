@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/polyverse/play-with-polyverse/docker"
+	"github.com/polyverse/play-with-polyverse/docker-provisioner"
 	"github.com/polyverse/play-with-polyverse/event"
 	"github.com/polyverse/play-with-polyverse/id"
-	"github.com/polyverse/play-with-polyverse/provisioner"
 	"github.com/polyverse/play-with-polyverse/pwd/types"
 	"github.com/polyverse/play-with-polyverse/storage"
 	"github.com/prometheus/client_golang/prometheus"
@@ -54,10 +54,10 @@ type pwd struct {
 	storage                    storage.StorageApi
 	generator                  id.Generator
 	clientCount                int32
-	sessionProvisioner         provisioner.SessionProvisionerApi
-	instanceProvisionerFactory provisioner.InstanceProvisionerFactoryApi
-	windowsProvisioner         provisioner.InstanceProvisionerApi
-	dindProvisioner            provisioner.InstanceProvisionerApi
+	sessionProvisioner         docker_provisioner.SessionProvisionerApi
+	instanceProvisionerFactory docker_provisioner.InstanceProvisionerFactoryApi
+	windowsProvisioner         docker_provisioner.InstanceProvisionerApi
+	dindProvisioner            docker_provisioner.InstanceProvisionerApi
 }
 
 var sessionNotEmpty = errors.New("Session is not empty")
@@ -102,12 +102,12 @@ type PWDApi interface {
 	PlaygroundList() ([]*types.Playground, error)
 }
 
-func NewPWD(f docker.FactoryApi, e event.EventApi, s storage.StorageApi, sp provisioner.SessionProvisionerApi, ipf provisioner.InstanceProvisionerFactoryApi) *pwd {
+func NewPWD(f docker.FactoryApi, e event.EventApi, s storage.StorageApi, sp docker_provisioner.SessionProvisionerApi, ipf docker_provisioner.InstanceProvisionerFactoryApi) *pwd {
 	//  windowsProvisioner: provisioner.NewWindowsASG(f, s), dindProvisioner: provisioner.NewDinD(f)
 	return &pwd{dockerFactory: f, event: e, storage: s, generator: id.XIDGenerator{}, sessionProvisioner: sp, instanceProvisionerFactory: ipf}
 }
 
-func (p *pwd) getProvisioner(t string) (provisioner.InstanceProvisionerApi, error) {
+func (p *pwd) getProvisioner(t string) (docker_provisioner.InstanceProvisionerApi, error) {
 	return p.instanceProvisionerFactory.GetProvisioner(t)
 }
 

@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/polyverse/play-with-polyverse/provisioner"
+	"github.com/polyverse/play-with-polyverse/docker-provisioner"
 	"github.com/polyverse/play-with-polyverse/pwd/types"
 )
 
@@ -53,7 +53,7 @@ func NewInstance(rw http.ResponseWriter, req *http.Request) {
 
 	i, err := core.InstanceNew(s, body)
 	if err != nil {
-		if provisioner.OutOfCapacity(err) {
+		if docker_provisioner.OutOfCapacity(err) {
 			rw.WriteHeader(http.StatusServiceUnavailable)
 			fmt.Fprintln(rw, `{"error": "out_of_capacity"}`)
 			return

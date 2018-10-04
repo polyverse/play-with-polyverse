@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/polyverse/play-with-polyverse/config"
-	"github.com/polyverse/play-with-polyverse/provisioner"
+	"github.com/polyverse/play-with-polyverse/docker-provisioner"
 	"github.com/polyverse/play-with-polyverse/pwd/types"
 )
 
@@ -80,7 +80,7 @@ func NewSession(rw http.ResponseWriter, req *http.Request) {
 	sConfig := types.SessionConfig{Playground: playground, UserId: userId, Duration: duration, Stack: stack, StackName: stackName, ImageName: imageName}
 	s, err := core.SessionNew(context.Background(), sConfig)
 	if err != nil {
-		if provisioner.OutOfCapacity(err) {
+		if docker_provisioner.OutOfCapacity(err) {
 			http.Redirect(rw, req, "/ooc", http.StatusFound)
 			return
 		}

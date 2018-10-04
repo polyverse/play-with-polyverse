@@ -1,4 +1,4 @@
-package provisioner
+package docker_provisioner
 
 type instanceProvisionerFactory struct {
 	dind InstanceProvisionerApi

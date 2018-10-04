@@ -8,11 +8,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws/external"
 	"github.com/polyverse/play-with-polyverse/config"
 	"github.com/polyverse/play-with-polyverse/docker"
+	"github.com/polyverse/play-with-polyverse/docker-provisioner"
 	"github.com/polyverse/play-with-polyverse/event"
 	"github.com/polyverse/play-with-polyverse/handlers"
 	"github.com/polyverse/play-with-polyverse/id"
 	"github.com/polyverse/play-with-polyverse/k8s"
-	"github.com/polyverse/play-with-polyverse/provisioner"
 	"github.com/polyverse/play-with-polyverse/pwd"
 	"github.com/polyverse/play-with-polyverse/pwd/types"
 	"github.com/polyverse/play-with-polyverse/scheduler"
@@ -27,8 +27,8 @@ func main() {
 	s := initStorage()
 	df := initDockerFactory(s)
 
-	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewDinD(id.XIDGenerator{}, df, s))
-	sp := provisioner.NewOverlaySessionProvisioner(df)
+	ipf := docker_provisioner.NewInstanceProvisionerFactory(docker_provisioner.NewDinD(id.XIDGenerator{}, df, s))
+	sp := docker_provisioner.NewOverlaySessionProvisioner(df)
 
 	core := pwd.NewPWD(df, e, s, sp, ipf)
 
