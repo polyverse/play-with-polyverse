@@ -2,7 +2,7 @@ version: '3.2'
 services:
     haproxy:
         container_name: haproxy
-        image: polyverse/docker-haproxy-rsyslog
+        image: polyverse/docker-haproxy-letsencrypt-rsyslog
         ports:
             - "80:80"
             - "443:443"
