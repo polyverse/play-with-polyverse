@@ -7,12 +7,10 @@ import (
 	"math"
 	"path"
 	"path/filepath"
-	"sync"
 	"time"
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/polyverse/play-with-polyverse/docker"
 	"github.com/polyverse/play-with-polyverse/event"
 	"github.com/polyverse/play-with-polyverse/pwd/types"
 )
@@ -35,13 +33,10 @@ type SessionSetupConf struct {
 }
 
 type SessionSetupInstanceConf struct {
-	Image          string     `json:"image"`
-	Hostname       string     `json:"hostname"`
-	IsSwarmManager bool       `json:"is_swarm_manager"`
-	IsSwarmWorker  bool       `json:"is_swarm_worker"`
-	Type           string     `json:"type"`
-	Run            [][]string `json:"run"`
-	Tls            bool       `json:"tls"`
+	Image    string     `json:"image"`
+	Hostname string     `json:"hostname"`
+	Type     string     `json:"type"`
+	Run      [][]string `json:"run"`
 }
 
 func (p *pwd) SessionNew(ctx context.Context, config types.SessionConfig) (*types.Session, error) {
@@ -221,11 +216,6 @@ func (p *pwd) SessionGet(sessionId string) (*types.Session, error) {
 func (p *pwd) SessionSetup(session *types.Session, sconf SessionSetupConf) error {
 	defer observeAction("SessionSetup", time.Now())
 
-	c := sync.NewCond(&sync.Mutex{})
-
-	var tokens *docker.SwarmTokens = nil
-	var firstSwarmManager *types.Instance = nil
-
 	instances, err := p.storage.InstanceFindBySessionId(session.Id)
 	if err != nil {
 		log.Println(err)
@@ -245,49 +235,10 @@ func (p *pwd) SessionSetup(session *types.Session, sconf SessionSetupConf) error
 				Hostname:       conf.Hostname,
 				PlaygroundFQDN: sconf.PlaygroundFQDN,
 				Type:           conf.Type,
-				Tls:            conf.Tls,
 			}
 			i, err := p.InstanceNew(session, instanceConf)
 			if err != nil {
 				return err
-			}
-
-			if conf.IsSwarmManager || conf.IsSwarmWorker {
-				dockerClient, err := p.dockerFactory.GetForInstance(i)
-				if err != nil {
-					return err
-				}
-				if conf.IsSwarmManager {
-					c.L.Lock()
-					if firstSwarmManager == nil {
-						tkns, err := dockerClient.SwarmInit(i.IP)
-						if err != nil {
-							log.Printf("Cannot initialize swarm on instance %s. Got: %v\n", i.Name, err)
-							return err
-						}
-						tokens = tkns
-						firstSwarmManager = i
-						c.Broadcast()
-						c.L.Unlock()
-					} else {
-						c.L.Unlock()
-						if err := dockerClient.SwarmJoin(fmt.Sprintf("%s:2377", firstSwarmManager.IP), tokens.Manager); err != nil {
-							log.Printf("Cannot join manager %s to swarm. Got: %v\n", i.Name, err)
-							return err
-						}
-					}
-				} else if conf.IsSwarmWorker {
-					c.L.Lock()
-					if firstSwarmManager == nil {
-						c.Wait()
-					}
-					c.L.Unlock()
-					err = dockerClient.SwarmJoin(fmt.Sprintf("%s:2377", firstSwarmManager.IP), tokens.Worker)
-					if err != nil {
-						log.Printf("Cannot join worker %s to swarm. Got: %v\n", i.Name, err)
-						return err
-					}
-				}
 			}
 
 			for _, cmd := range conf.Run {

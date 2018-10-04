@@ -26,7 +26,7 @@ func TestSessionNew(t *testing.T) {
 	_g := &id.MockGenerator{}
 	_e := &event.Mock{}
 
-	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewWindowsASG(_f, _s), provisioner.NewDinD(_g, _f, _s))
+	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewDinD(_g, _f, _s))
 	sp := provisioner.NewOverlaySessionProvisioner(_f)
 
 	_g.On("NewId").Return("aaaabbbbcccc")

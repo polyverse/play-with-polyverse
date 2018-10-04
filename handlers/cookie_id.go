@@ -18,7 +18,6 @@ func (c *CookieID) SetCookie(rw http.ResponseWriter) error {
 			Name:     "id",
 			Value:    encoded,
 			Path:     "/",
-			Secure:   config.UseLetsEncrypt,
 			HttpOnly: true,
 		}
 		http.SetCookie(rw, cookie)

@@ -376,7 +376,6 @@ func (store *s3Storage) PlaygroundGet(id string) (*types.Playground, error) {
 	} else {
 		return playground, nil
 	}
-	return nil, NotFoundError
 }
 
 func (store *s3Storage) PlaygroundGetAll() ([]*types.Playground, error) {
@@ -456,7 +455,7 @@ func (store *s3Storage) save() error {
 	return nil
 }
 
-func DynamoDbStorage(config aws.Config, s3Bucket string) (StorageApi, error) {
+func S3Storage(config aws.Config, s3Bucket string) (StorageApi, error) {
 	s := &s3Storage{
 		s3svc:    s3.New(config),
 		s3Bucket: s3Bucket,

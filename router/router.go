@@ -108,6 +108,7 @@ func (r *proxyRouter) listen(wg *sync.WaitGroup, httpAddr, dnsAddr, sshAddr stri
 	r.sshListener = lssh
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		for {
 			nConn, err := lssh.Accept()
 			if err != nil {
@@ -116,7 +117,6 @@ func (r *proxyRouter) listen(wg *sync.WaitGroup, httpAddr, dnsAddr, sshAddr stri
 
 			go r.sshHandle(nConn)
 		}
-		wg.Done()
 	}()
 }
 

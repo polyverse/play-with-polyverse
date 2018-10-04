@@ -24,7 +24,7 @@ func TestClientNew(t *testing.T) {
 	_d := &docker.Mock{}
 	_e := &event.Mock{}
 
-	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewWindowsASG(_f, _s), provisioner.NewDinD(_g, _f, _s))
+	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewDinD(_g, _f, _s))
 	sp := provisioner.NewOverlaySessionProvisioner(_f)
 
 	_g.On("NewId").Return("aaaabbbbcccc")
@@ -67,7 +67,7 @@ func TestClientCount(t *testing.T) {
 	_g := &id.MockGenerator{}
 	_d := &docker.Mock{}
 	_e := &event.Mock{}
-	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewWindowsASG(_f, _s), provisioner.NewDinD(_g, _f, _s))
+	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewDinD(_g, _f, _s))
 	sp := provisioner.NewOverlaySessionProvisioner(_f)
 
 	_g.On("NewId").Return("aaaabbbbcccc")
@@ -108,7 +108,7 @@ func TestClientResizeViewPort(t *testing.T) {
 	_g := &id.MockGenerator{}
 	_d := &docker.Mock{}
 	_e := &event.Mock{}
-	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewWindowsASG(_f, _s), provisioner.NewDinD(_g, _f, _s))
+	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewDinD(_g, _f, _s))
 	sp := provisioner.NewOverlaySessionProvisioner(_f)
 
 	_g.On("NewId").Return("aaaabbbbcccc")

@@ -19,9 +19,7 @@ import (
 	"docker.io/go-docker/api/types/container"
 	"docker.io/go-docker/api/types/network"
 	"docker.io/go-docker/api/types/swarm"
-	"docker.io/go-docker/api/types/volume"
 	"github.com/containerd/containerd/reference"
-	"github.com/polyverse/play-with-polyverse/config"
 )
 
 const (
@@ -204,7 +202,15 @@ func (d *docker) ContainerRename(old, new string) error {
 func (d *docker) CreateAttachConnection(name string) (net.Conn, error) {
 	ctx := context.Background()
 
-	conf := types.ContainerAttachOptions{true, true, true, true, "ctrl-^,ctrl-^", true}
+	conf := types.ContainerAttachOptions{
+		Stream:     true,
+		Stdin:      true,
+		Stdout:     true,
+		Stderr:     true,
+		DetachKeys: "ctrl-^,ctrl-^",
+		Logs:       true,
+	}
+
 	conn, err := d.c.ContainerAttach(ctx, name, conf)
 	if err != nil {
 		return nil, err
@@ -336,26 +342,6 @@ func (d *docker) ContainerCreate(opts CreateContainerOpts) (err error) {
 
 	networkConf := &network.NetworkingConfig{
 		EndpointsConfig: map[string]*network.EndpointSettings{opts.Networks[0]: &network.EndpointSettings{}},
-	}
-
-	if config.ExternalDindVolume {
-		_, err = d.c.VolumeCreate(context.Background(), volume.VolumesCreateBody{
-			Driver: "xfsvol",
-			DriverOpts: map[string]string{
-				"size": config.DindVolumeSize,
-			},
-			Name: opts.ContainerName,
-		})
-		if err != nil {
-			return
-		}
-		h.Binds = []string{fmt.Sprintf("%s:/var/lib/docker", opts.ContainerName)}
-
-		defer func() {
-			if err != nil {
-				d.c.VolumeRemove(context.Background(), opts.SessionId, true)
-			}
-		}()
 	}
 
 	container, err := d.c.ContainerCreate(context.Background(), cf, h, networkConf, opts.ContainerName)

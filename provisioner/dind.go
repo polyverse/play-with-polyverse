@@ -71,9 +71,6 @@ func (d *DinD) InstanceNew(session *types.Session, conf types.InstanceConfig) (*
 		SessionId:     session.Id,
 		ContainerName: containerName,
 		Hostname:      conf.Hostname,
-		ServerCert:    conf.ServerCert,
-		ServerKey:     conf.ServerKey,
-		CACert:        conf.CACert,
 		HostFQDN:      conf.PlaygroundFQDN,
 		Privileged:    true,
 		Networks:      []string{session.Id},
@@ -99,12 +96,6 @@ func (d *DinD) InstanceNew(session *types.Session, conf types.InstanceConfig) (*
 	instance.SessionId = session.Id
 	instance.Name = containerName
 	instance.Hostname = conf.Hostname
-	instance.Cert = conf.Cert
-	instance.Key = conf.Key
-	instance.ServerCert = conf.ServerCert
-	instance.ServerKey = conf.ServerKey
-	instance.CACert = conf.CACert
-	instance.Tls = conf.Tls
 	instance.ProxyHost = router.EncodeHost(session.Id, instance.RoutableIP, router.HostOpts{})
 	instance.SessionHost = session.Host
 

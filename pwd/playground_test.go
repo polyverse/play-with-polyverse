@@ -22,7 +22,7 @@ func TestPlaygroundNew(t *testing.T) {
 	_g := &id.MockGenerator{}
 	_e := &event.Mock{}
 
-	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewWindowsASG(_f, _s), provisioner.NewDinD(_g, _f, _s))
+	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewDinD(_g, _f, _s))
 	sp := provisioner.NewOverlaySessionProvisioner(_f)
 
 	var nilArgs []interface{}
@@ -58,7 +58,7 @@ func TestPlaygroundGet(t *testing.T) {
 	_e.M.On("Emit", event.PLAYGROUND_NEW, uuid.NewV5(uuid.NamespaceOID, "localhost").String(), nilArgs).Return()
 	_s.On("PlaygroundPut", mock.AnythingOfType("*types.Playground")).Return(nil)
 
-	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewWindowsASG(_f, _s), provisioner.NewDinD(_g, _f, _s))
+	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewDinD(_g, _f, _s))
 	sp := provisioner.NewOverlaySessionProvisioner(_f)
 
 	p := NewPWD(_f, _e, _s, sp, ipf)
@@ -94,7 +94,7 @@ func TestPlaygroundFindByDomain(t *testing.T) {
 	_e.M.On("Emit", event.PLAYGROUND_NEW, uuid.NewV5(uuid.NamespaceOID, "localhost").String(), nilArgs).Return()
 	_s.On("PlaygroundPut", mock.AnythingOfType("*types.Playground")).Return(nil)
 
-	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewWindowsASG(_f, _s), provisioner.NewDinD(_g, _f, _s))
+	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewDinD(_g, _f, _s))
 	sp := provisioner.NewOverlaySessionProvisioner(_f)
 
 	p := NewPWD(_f, _e, _s, sp, ipf)
@@ -131,7 +131,7 @@ func TestPlaygroundList(t *testing.T) {
 	_e.M.On("Emit", event.PLAYGROUND_NEW, uuid.NewV5(uuid.NamespaceOID, "localhost2").String(), nilArgs).Return()
 	_s.On("PlaygroundPut", mock.AnythingOfType("*types.Playground")).Return(nil)
 
-	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewWindowsASG(_f, _s), provisioner.NewDinD(_g, _f, _s))
+	ipf := provisioner.NewInstanceProvisionerFactory(provisioner.NewDinD(_g, _f, _s))
 	sp := provisioner.NewOverlaySessionProvisioner(_f)
 
 	p := NewPWD(_f, _e, _s, sp, ipf)

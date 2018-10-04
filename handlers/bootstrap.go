@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"context"
-	"crypto/tls"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -12,12 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/oauth2"
 
 	gh "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	lru "github.com/hashicorp/golang-lru"
 	"github.com/polyverse/play-with-polyverse/config"
 	"github.com/polyverse/play-with-polyverse/event"
 	"github.com/polyverse/play-with-polyverse/pwd"
@@ -136,58 +132,8 @@ func Register(extend HandlerExtender) {
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
-	if config.UseLetsEncrypt {
-		domainCache, err := lru.New(5000)
-		if err != nil {
-			log.Fatalf("Could not start domain cache. Got: %v", err)
-		}
-		certManager := autocert.Manager{
-			Prompt: autocert.AcceptTOS,
-			HostPolicy: func(ctx context.Context, host string) error {
-				if _, found := domainCache.Get(host); !found {
-					if playground := core.PlaygroundFindByDomain(host); playground == nil {
-						return fmt.Errorf("Playground for domain %s was not found", host)
-					}
-					domainCache.Add(host, true)
-				}
-				return nil
-			},
-			Cache: autocert.DirCache(config.LetsEncryptCertsDir),
-		}
-
-		httpServer.TLSConfig = &tls.Config{
-			GetCertificate: certManager.GetCertificate,
-		}
-
-		go func() {
-			rr := mux.NewRouter()
-			rr.HandleFunc("/ping", Ping).Methods("GET")
-			rr.Handle("/metrics", promhttp.Handler())
-			rr.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-				target := fmt.Sprintf("https://%s%s", r.Host, r.URL.Path)
-				if len(r.URL.RawQuery) > 0 {
-					target += "?" + r.URL.RawQuery
-				}
-				http.Redirect(rw, r, target, http.StatusMovedPermanently)
-			})
-			nr := negroni.Classic()
-			nr.UseHandler(rr)
-			log.Println("Starting redirect server")
-			redirectServer := http.Server{
-				Addr:              "0.0.0.0:3001",
-				Handler:           certManager.HTTPHandler(nr),
-				IdleTimeout:       30 * time.Second,
-				ReadHeaderTimeout: 5 * time.Second,
-			}
-			log.Fatal(redirectServer.ListenAndServe())
-		}()
-
-		log.Println("Listening on port " + config.PortNumber)
-		log.Fatal(httpServer.ListenAndServeTLS("", ""))
-	} else {
-		log.Println("Listening on port " + config.PortNumber)
-		log.Fatal(httpServer.ListenAndServe())
-	}
+	log.Println("Listening on port " + config.PortNumber)
+	log.Fatal(httpServer.ListenAndServe())
 }
 
 func initPlaygrounds() {

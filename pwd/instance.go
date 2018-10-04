@@ -6,7 +6,6 @@ import (
 	"net"
 	"time"
 
-	"github.com/polyverse/play-with-polyverse/config"
 	"github.com/polyverse/play-with-polyverse/event"
 	"github.com/polyverse/play-with-polyverse/pwd/types"
 )
@@ -101,10 +100,6 @@ func (p *pwd) InstanceNew(session *types.Session, conf types.InstanceConfig) (*t
 	prov, err := p.getProvisioner(conf.Type)
 	if err != nil {
 		return nil, err
-	}
-
-	if config.ForceTLS {
-		conf.Tls = true
 	}
 
 	instance, err := prov.InstanceNew(session, conf)

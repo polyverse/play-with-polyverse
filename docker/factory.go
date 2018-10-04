@@ -1,7 +1,6 @@
 package docker
 
 import (
-	"crypto/tls"
 	"fmt"
 	"net"
 	"net/http"
@@ -10,7 +9,6 @@ import (
 
 	client "docker.io/go-docker"
 	"docker.io/go-docker/api"
-	"github.com/docker/go-connections/tlsconfig"
 	"github.com/polyverse/play-with-polyverse/pwd/types"
 	"github.com/polyverse/play-with-polyverse/router"
 )
@@ -24,22 +22,7 @@ func NewClient(instance *types.Instance, proxyHost string) (*client.Client, erro
 	var host string
 	var durl string
 
-	var tlsConfig *tls.Config
-	if (len(instance.Cert) > 0 && len(instance.Key) > 0) || instance.Tls {
-		host = router.EncodeHost(instance.SessionId, instance.RoutableIP, router.HostOpts{EncodedPort: 2376})
-		tlsConfig = tlsconfig.ClientDefault()
-		tlsConfig.InsecureSkipVerify = true
-		tlsConfig.ServerName = host
-		if len(instance.Cert) > 0 && len(instance.Key) > 0 {
-			tlsCert, err := tls.X509KeyPair(instance.Cert, instance.Key)
-			if err != nil {
-				return nil, fmt.Errorf("Could not load X509 key pair: %v. Make sure the key is not encrypted", err)
-			}
-			tlsConfig.Certificates = []tls.Certificate{tlsCert}
-		}
-	} else {
-		host = router.EncodeHost(instance.SessionId, instance.RoutableIP, router.HostOpts{EncodedPort: 2375})
-	}
+	host = router.EncodeHost(instance.SessionId, instance.RoutableIP, router.HostOpts{EncodedPort: 2375})
 
 	transport := &http.Transport{
 		DialContext: (&net.Dialer{
@@ -49,13 +32,8 @@ func NewClient(instance *types.Instance, proxyHost string) (*client.Client, erro
 		MaxIdleConnsPerHost: 5,
 	}
 
-	if tlsConfig != nil {
-		transport.TLSClientConfig = tlsConfig
-		durl = fmt.Sprintf("https://%s", proxyHost)
-	} else {
-		transport.Proxy = http.ProxyURL(&url.URL{Host: proxyHost})
-		durl = fmt.Sprintf("http://%s", host)
-	}
+	transport.Proxy = http.ProxyURL(&url.URL{Host: proxyHost})
+	durl = fmt.Sprintf("http://%s", host)
 
 	cli := &http.Client{
 		Transport: transport,
