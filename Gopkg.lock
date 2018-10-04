@@ -87,6 +87,28 @@
   version = "v1.12.15"
 
 [[projects]]
+  digest = "1:dc031610f841c04cb46db5a9cad819f8da6f64c1f5fb559447dadbbace5c65ae"
+  name = "github.com/aws/aws-sdk-go-v2"
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/signer/v4",
+    "internal/awsutil",
+    "internal/sdk",
+    "private/protocol",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/restxml",
+    "private/protocol/xml",
+    "private/protocol/xml/xmlutil",
+    "service/s3",
+  ]
+  pruneopts = ""
+  revision = "d52522b5f4b95591ff6528d7c54923951aadf099"
+  version = "v2.0.0-preview.5"
+
+[[projects]]
   branch = "master"
   digest = "1:0c5485088ce274fac2e931c1b979f2619345097b39d91af3239977114adf0320"
   name = "github.com/beorn7/perks"
@@ -387,6 +409,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:448b4a6e39e46d8740b00dc871f26d58dc39341b160e01267b7917132831a136"
+  name = "github.com/konsorten/go-windows-terminal-sequences"
+  packages = ["."]
+  pruneopts = ""
+  revision = "b729f2633dfe35f4d1d8a32385f6685610ce1cb5"
+
+[[projects]]
+  branch = "master"
   digest = "1:ccc20cacf54eb16464dad02efa1c14fa7c0b9e124639b0d2a51dcc87b0154e4c"
   name = "github.com/mailru/easyjson"
   packages = [
@@ -537,6 +567,14 @@
   version = "v2.17.09"
 
 [[projects]]
+  digest = "1:01d968ff6535945510c944983eee024e81f1c949043e9bbfe5ab206ebc3588a4"
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  pruneopts = ""
+  revision = "a67f783a3814b8729bd2dac5780b5f78f8dbd64d"
+  version = "v1.1.0"
+
+[[projects]]
   digest = "1:261bc565833ef4f02121450d74eb88d5ae4bd74bfe5d0e862cddb8550ec35000"
   name = "github.com/spf13/pflag"
   packages = ["."]
@@ -584,6 +622,7 @@
     "internal/chacha20",
     "poly1305",
     "ssh",
+    "ssh/terminal",
   ]
   pruneopts = ""
   revision = "ab813273cd59e1333f7ae7bff5d027d4aadf528c"
@@ -841,6 +880,8 @@
     "docker.io/go-docker/api/types/network",
     "docker.io/go-docker/api/types/swarm",
     "docker.io/go-docker/api/types/volume",
+    "github.com/aws/aws-sdk-go-v2/aws",
+    "github.com/aws/aws-sdk-go-v2/service/s3",
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/autoscaling",
@@ -857,11 +898,13 @@
     "github.com/huandu/facebook",
     "github.com/inconshreveable/go-vhost",
     "github.com/miekg/dns",
+    "github.com/pkg/errors",
     "github.com/prometheus/client_golang/prometheus",
     "github.com/prometheus/client_golang/prometheus/promhttp",
     "github.com/rs/xid",
     "github.com/satori/go.uuid",
     "github.com/shirou/gopsutil/load",
+    "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/mock",
     "github.com/urfave/negroni",

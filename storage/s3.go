@@ -3,19 +3,29 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
-	"os"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"sync"
 
+	"bytes"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/pkg/errors"
 	"github.com/polyverse/play-with-polyverse/pwd/types"
+	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 )
 
-type fileStorage struct {
-	rw   sync.Mutex
-	path string
-	db   *DB
+var (
+	s3ObjectKey = "play-with-polyverse.json"
+)
+
+type s3Storage struct {
+	rw       sync.Mutex
+	db       *DB
+	s3Bucket string
+	s3svc    *s3.S3
 }
 
-func (store *fileStorage) SessionGet(id string) (*types.Session, error) {
+func (store *s3Storage) SessionGet(id string) (*types.Session, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -27,7 +37,7 @@ func (store *fileStorage) SessionGet(id string) (*types.Session, error) {
 	return s, nil
 }
 
-func (store *fileStorage) SessionGetAll() ([]*types.Session, error) {
+func (store *s3Storage) SessionGetAll() ([]*types.Session, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -41,7 +51,7 @@ func (store *fileStorage) SessionGetAll() ([]*types.Session, error) {
 	return sessions, nil
 }
 
-func (store *fileStorage) SessionPut(session *types.Session) error {
+func (store *s3Storage) SessionPut(session *types.Session) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -50,7 +60,7 @@ func (store *fileStorage) SessionPut(session *types.Session) error {
 	return store.save()
 }
 
-func (store *fileStorage) SessionDelete(id string) error {
+func (store *s3Storage) SessionDelete(id string) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -75,14 +85,14 @@ func (store *fileStorage) SessionDelete(id string) error {
 	return store.save()
 }
 
-func (store *fileStorage) SessionCount() (int, error) {
+func (store *s3Storage) SessionCount() (int, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
 	return len(store.db.Sessions), nil
 }
 
-func (store *fileStorage) InstanceGet(name string) (*types.Instance, error) {
+func (store *s3Storage) InstanceGet(name string) (*types.Instance, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -93,7 +103,7 @@ func (store *fileStorage) InstanceGet(name string) (*types.Instance, error) {
 	return i, nil
 }
 
-func (store *fileStorage) InstancePut(instance *types.Instance) error {
+func (store *s3Storage) InstancePut(instance *types.Instance) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -117,7 +127,7 @@ func (store *fileStorage) InstancePut(instance *types.Instance) error {
 	return store.save()
 }
 
-func (store *fileStorage) InstanceDelete(name string) error {
+func (store *s3Storage) InstanceDelete(name string) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -139,14 +149,14 @@ func (store *fileStorage) InstanceDelete(name string) error {
 	return store.save()
 }
 
-func (store *fileStorage) InstanceCount() (int, error) {
+func (store *s3Storage) InstanceCount() (int, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
 	return len(store.db.Instances), nil
 }
 
-func (store *fileStorage) InstanceFindBySessionId(sessionId string) ([]*types.Instance, error) {
+func (store *s3Storage) InstanceFindBySessionId(sessionId string) ([]*types.Instance, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -159,7 +169,7 @@ func (store *fileStorage) InstanceFindBySessionId(sessionId string) ([]*types.In
 	return instances, nil
 }
 
-func (store *fileStorage) WindowsInstanceGetAll() ([]*types.WindowsInstance, error) {
+func (store *s3Storage) WindowsInstanceGetAll() ([]*types.WindowsInstance, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -172,7 +182,7 @@ func (store *fileStorage) WindowsInstanceGetAll() ([]*types.WindowsInstance, err
 	return instances, nil
 }
 
-func (store *fileStorage) WindowsInstancePut(instance *types.WindowsInstance) error {
+func (store *s3Storage) WindowsInstancePut(instance *types.WindowsInstance) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -195,7 +205,7 @@ func (store *fileStorage) WindowsInstancePut(instance *types.WindowsInstance) er
 	return store.save()
 }
 
-func (store *fileStorage) WindowsInstanceDelete(id string) error {
+func (store *s3Storage) WindowsInstanceDelete(id string) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -217,7 +227,7 @@ func (store *fileStorage) WindowsInstanceDelete(id string) error {
 	return store.save()
 }
 
-func (store *fileStorage) ClientGet(id string) (*types.Client, error) {
+func (store *s3Storage) ClientGet(id string) (*types.Client, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -227,7 +237,7 @@ func (store *fileStorage) ClientGet(id string) (*types.Client, error) {
 	}
 	return i, nil
 }
-func (store *fileStorage) ClientPut(client *types.Client) error {
+func (store *s3Storage) ClientPut(client *types.Client) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -250,7 +260,7 @@ func (store *fileStorage) ClientPut(client *types.Client) error {
 
 	return store.save()
 }
-func (store *fileStorage) ClientDelete(id string) error {
+func (store *s3Storage) ClientDelete(id string) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -271,13 +281,13 @@ func (store *fileStorage) ClientDelete(id string) error {
 
 	return store.save()
 }
-func (store *fileStorage) ClientCount() (int, error) {
+func (store *s3Storage) ClientCount() (int, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
 	return len(store.db.Clients), nil
 }
-func (store *fileStorage) ClientFindBySessionId(sessionId string) ([]*types.Client, error) {
+func (store *s3Storage) ClientFindBySessionId(sessionId string) ([]*types.Client, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -290,14 +300,14 @@ func (store *fileStorage) ClientFindBySessionId(sessionId string) ([]*types.Clie
 	return clients, nil
 }
 
-func (store *fileStorage) LoginRequestPut(loginRequest *types.LoginRequest) error {
+func (store *s3Storage) LoginRequestPut(loginRequest *types.LoginRequest) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
 	store.db.LoginRequests[loginRequest.Id] = loginRequest
 	return nil
 }
-func (store *fileStorage) LoginRequestGet(id string) (*types.LoginRequest, error) {
+func (store *s3Storage) LoginRequestGet(id string) (*types.LoginRequest, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -307,7 +317,7 @@ func (store *fileStorage) LoginRequestGet(id string) (*types.LoginRequest, error
 		return lr, nil
 	}
 }
-func (store *fileStorage) LoginRequestDelete(id string) error {
+func (store *s3Storage) LoginRequestDelete(id string) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -315,7 +325,7 @@ func (store *fileStorage) LoginRequestDelete(id string) error {
 	return nil
 }
 
-func (store *fileStorage) UserFindByProvider(providerName, providerUserId string) (*types.User, error) {
+func (store *s3Storage) UserFindByProvider(providerName, providerUserId string) (*types.User, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -330,7 +340,7 @@ func (store *fileStorage) UserFindByProvider(providerName, providerUserId string
 	}
 }
 
-func (store *fileStorage) UserPut(user *types.User) error {
+func (store *s3Storage) UserPut(user *types.User) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -339,7 +349,7 @@ func (store *fileStorage) UserPut(user *types.User) error {
 
 	return store.save()
 }
-func (store *fileStorage) UserGet(id string) (*types.User, error) {
+func (store *s3Storage) UserGet(id string) (*types.User, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -350,7 +360,7 @@ func (store *fileStorage) UserGet(id string) (*types.User, error) {
 	}
 }
 
-func (store *fileStorage) PlaygroundPut(playground *types.Playground) error {
+func (store *s3Storage) PlaygroundPut(playground *types.Playground) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -358,7 +368,7 @@ func (store *fileStorage) PlaygroundPut(playground *types.Playground) error {
 
 	return store.save()
 }
-func (store *fileStorage) PlaygroundGet(id string) (*types.Playground, error) {
+func (store *s3Storage) PlaygroundGet(id string) (*types.Playground, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 	if playground, found := store.db.Playgrounds[id]; !found {
@@ -369,7 +379,7 @@ func (store *fileStorage) PlaygroundGet(id string) (*types.Playground, error) {
 	return nil, NotFoundError
 }
 
-func (store *fileStorage) PlaygroundGetAll() ([]*types.Playground, error) {
+func (store *s3Storage) PlaygroundGetAll() ([]*types.Playground, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -383,17 +393,30 @@ func (store *fileStorage) PlaygroundGetAll() ([]*types.Playground, error) {
 	return playgrounds, nil
 }
 
-func (store *fileStorage) load() error {
-	file, err := os.Open(store.path)
+func (store *s3Storage) load() error {
+
+	getReq := store.s3svc.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: &store.s3Bucket,
+		Key:    &s3ObjectKey,
+	})
+
+	getObjOut, err := getReq.Send()
+	if err != nil {
+		return errors.Wrapf(err, "Unable to get DB state from S3")
+	}
 
 	if err == nil {
-		decoder := json.NewDecoder(file)
-		err = decoder.Decode(&store.db)
-
+		jsonblob, err := ioutil.ReadAll(getObjOut.Body)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "Unable to read Get Object body from S3")
+		}
+
+		err = json.Unmarshal(jsonblob, &store.db)
+		if err != nil {
+			return errors.Wrapf(err, "Unable to unmarshall JSON obtained from S3 into DB")
 		}
 	} else {
+		log.Infof("Generating a new blank DB due to first invocation")
 		store.db = &DB{
 			Sessions:                    map[string]*types.Session{},
 			Instances:                   map[string]*types.Instance{},
@@ -408,24 +431,36 @@ func (store *fileStorage) load() error {
 			UsersByProvider:             map[string]string{},
 		}
 	}
-
-	file.Close()
 	return nil
 }
 
-func (store *fileStorage) save() error {
-	file, err := os.Create(store.path)
+func (store *s3Storage) save() error {
+
+	jsonblob, err := json.Marshal(store.db)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "Unable to serialize DB into JSON for storage.")
 	}
-	defer file.Close()
-	encoder := json.NewEncoder(file)
-	err = encoder.Encode(&store.db)
-	return err
+
+	putReq := store.s3svc.PutObjectRequest(&s3.PutObjectInput{
+		Bucket: &store.s3Bucket,
+		Key:    &s3ObjectKey,
+		Body:   bytes.NewReader(jsonblob),
+	})
+
+	putObjOut, err := putReq.Send()
+	if err != nil {
+		return errors.Wrapf(err, "Unable to push DB state to S3")
+	}
+
+	log.Infof("Put DB to S3 succeeded: %s", putObjOut.String())
+	return nil
 }
 
-func NewFileStorage(path string) (StorageApi, error) {
-	s := &fileStorage{path: path}
+func DynamoDbStorage(config aws.Config, s3Bucket string) (StorageApi, error) {
+	s := &s3Storage{
+		s3svc:    s3.New(config),
+		s3Bucket: s3Bucket,
+	}
 
 	err := s.load()
 	if err != nil {
