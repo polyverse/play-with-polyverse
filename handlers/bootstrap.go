@@ -35,8 +35,8 @@ var e event.EventApi
 var landings = map[string][]byte{}
 
 const (
-	ENV_GITHUB_CLIENT_ID       = "GITHUB_CLIENT_ID"
-	ENV_GITHUB_CLIENT_SECRET   = "GITHUB_CLIENT_SECRET"
+	ENV_GITHUB_CLIENT_ID     = "GITHUB_CLIENT_ID"
+	ENV_GITHUB_CLIENT_SECRET = "GITHUB_CLIENT_SECRET"
 	ENV_FACEBOOK_CLIENT_ID     = "FACEBOOK_CLIENT_ID"
 	ENV_FACEBOOK_CLIENT_SECRET = "FACEBOOK_CLIENT_SECRET"
 )
@@ -255,7 +255,7 @@ func initOauthProviders(p *types.Playground) {
 		}
 
 		config.Providers[p.Id]["facebook"] = conf
-	} else if facebook_client_id, ok := os.LookupEnv(ENV_FACEBOOK_CLIENT_ID); ok && facebook_client_id != "" {
+	} else if facebook_client_id, ok := os.LookupEnv(ENV_FACEBOOK_CLIENT_ID); ok && facebook_client_id != ""{
 		if facebook_client_secret, ok := os.LookupEnv(ENV_FACEBOOK_CLIENT_SECRET); ok && facebook_client_secret != "" {
 			config.Providers[p.Id]["facebook"] = &oauth2.Config{
 				ClientID:     facebook_client_id,

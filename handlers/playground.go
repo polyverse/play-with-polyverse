@@ -69,8 +69,8 @@ func GetCurrentPlayground(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 	json.NewEncoder(rw).Encode(PlaygroundConfigurationResponse{
-		Id:                          playground.Id,
-		Domain:                      playground.Domain,
+		Id:     playground.Id,
+		Domain: playground.Domain,
 		DefaultDinDInstanceImage:    playground.DefaultDinDInstanceImage,
 		AvailableDinDInstanceImages: playground.AvailableDinDInstanceImages,
 		AllowWindowsInstances:       playground.AllowWindowsInstances,

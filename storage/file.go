@@ -9,13 +9,28 @@ import (
 	"github.com/polyverse/play-with-polyverse/pwd/types"
 )
 
-type fileStorage struct {
+type storage struct {
 	rw   sync.Mutex
 	path string
 	db   *DB
 }
 
-func (store *fileStorage) SessionGet(id string) (*types.Session, error) {
+type DB struct {
+	Sessions         map[string]*types.Session         `json:"sessions"`
+	Instances        map[string]*types.Instance        `json:"instances"`
+	Clients          map[string]*types.Client          `json:"clients"`
+	WindowsInstances map[string]*types.WindowsInstance `json:"windows_instances"`
+	LoginRequests    map[string]*types.LoginRequest    `json:"login_requests"`
+	Users            map[string]*types.User            `json:"user"`
+	Playgrounds      map[string]*types.Playground      `json:"playgrounds"`
+
+	WindowsInstancesBySessionId map[string][]string `json:"windows_instances_by_session_id"`
+	InstancesBySessionId        map[string][]string `json:"instances_by_session_id"`
+	ClientsBySessionId          map[string][]string `json:"clients_by_session_id"`
+	UsersByProvider             map[string]string   `json:"users_by_providers"`
+}
+
+func (store *storage) SessionGet(id string) (*types.Session, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -27,7 +42,7 @@ func (store *fileStorage) SessionGet(id string) (*types.Session, error) {
 	return s, nil
 }
 
-func (store *fileStorage) SessionGetAll() ([]*types.Session, error) {
+func (store *storage) SessionGetAll() ([]*types.Session, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -41,7 +56,7 @@ func (store *fileStorage) SessionGetAll() ([]*types.Session, error) {
 	return sessions, nil
 }
 
-func (store *fileStorage) SessionPut(session *types.Session) error {
+func (store *storage) SessionPut(session *types.Session) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -50,7 +65,7 @@ func (store *fileStorage) SessionPut(session *types.Session) error {
 	return store.save()
 }
 
-func (store *fileStorage) SessionDelete(id string) error {
+func (store *storage) SessionDelete(id string) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -75,14 +90,14 @@ func (store *fileStorage) SessionDelete(id string) error {
 	return store.save()
 }
 
-func (store *fileStorage) SessionCount() (int, error) {
+func (store *storage) SessionCount() (int, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
 	return len(store.db.Sessions), nil
 }
 
-func (store *fileStorage) InstanceGet(name string) (*types.Instance, error) {
+func (store *storage) InstanceGet(name string) (*types.Instance, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -93,7 +108,7 @@ func (store *fileStorage) InstanceGet(name string) (*types.Instance, error) {
 	return i, nil
 }
 
-func (store *fileStorage) InstancePut(instance *types.Instance) error {
+func (store *storage) InstancePut(instance *types.Instance) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -117,7 +132,7 @@ func (store *fileStorage) InstancePut(instance *types.Instance) error {
 	return store.save()
 }
 
-func (store *fileStorage) InstanceDelete(name string) error {
+func (store *storage) InstanceDelete(name string) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -139,14 +154,14 @@ func (store *fileStorage) InstanceDelete(name string) error {
 	return store.save()
 }
 
-func (store *fileStorage) InstanceCount() (int, error) {
+func (store *storage) InstanceCount() (int, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
 	return len(store.db.Instances), nil
 }
 
-func (store *fileStorage) InstanceFindBySessionId(sessionId string) ([]*types.Instance, error) {
+func (store *storage) InstanceFindBySessionId(sessionId string) ([]*types.Instance, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -159,7 +174,7 @@ func (store *fileStorage) InstanceFindBySessionId(sessionId string) ([]*types.In
 	return instances, nil
 }
 
-func (store *fileStorage) WindowsInstanceGetAll() ([]*types.WindowsInstance, error) {
+func (store *storage) WindowsInstanceGetAll() ([]*types.WindowsInstance, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -172,7 +187,7 @@ func (store *fileStorage) WindowsInstanceGetAll() ([]*types.WindowsInstance, err
 	return instances, nil
 }
 
-func (store *fileStorage) WindowsInstancePut(instance *types.WindowsInstance) error {
+func (store *storage) WindowsInstancePut(instance *types.WindowsInstance) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -195,7 +210,7 @@ func (store *fileStorage) WindowsInstancePut(instance *types.WindowsInstance) er
 	return store.save()
 }
 
-func (store *fileStorage) WindowsInstanceDelete(id string) error {
+func (store *storage) WindowsInstanceDelete(id string) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -217,7 +232,7 @@ func (store *fileStorage) WindowsInstanceDelete(id string) error {
 	return store.save()
 }
 
-func (store *fileStorage) ClientGet(id string) (*types.Client, error) {
+func (store *storage) ClientGet(id string) (*types.Client, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -227,7 +242,7 @@ func (store *fileStorage) ClientGet(id string) (*types.Client, error) {
 	}
 	return i, nil
 }
-func (store *fileStorage) ClientPut(client *types.Client) error {
+func (store *storage) ClientPut(client *types.Client) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -250,7 +265,7 @@ func (store *fileStorage) ClientPut(client *types.Client) error {
 
 	return store.save()
 }
-func (store *fileStorage) ClientDelete(id string) error {
+func (store *storage) ClientDelete(id string) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -271,13 +286,13 @@ func (store *fileStorage) ClientDelete(id string) error {
 
 	return store.save()
 }
-func (store *fileStorage) ClientCount() (int, error) {
+func (store *storage) ClientCount() (int, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
 	return len(store.db.Clients), nil
 }
-func (store *fileStorage) ClientFindBySessionId(sessionId string) ([]*types.Client, error) {
+func (store *storage) ClientFindBySessionId(sessionId string) ([]*types.Client, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -290,14 +305,14 @@ func (store *fileStorage) ClientFindBySessionId(sessionId string) ([]*types.Clie
 	return clients, nil
 }
 
-func (store *fileStorage) LoginRequestPut(loginRequest *types.LoginRequest) error {
+func (store *storage) LoginRequestPut(loginRequest *types.LoginRequest) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
 	store.db.LoginRequests[loginRequest.Id] = loginRequest
 	return nil
 }
-func (store *fileStorage) LoginRequestGet(id string) (*types.LoginRequest, error) {
+func (store *storage) LoginRequestGet(id string) (*types.LoginRequest, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -307,7 +322,7 @@ func (store *fileStorage) LoginRequestGet(id string) (*types.LoginRequest, error
 		return lr, nil
 	}
 }
-func (store *fileStorage) LoginRequestDelete(id string) error {
+func (store *storage) LoginRequestDelete(id string) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -315,7 +330,7 @@ func (store *fileStorage) LoginRequestDelete(id string) error {
 	return nil
 }
 
-func (store *fileStorage) UserFindByProvider(providerName, providerUserId string) (*types.User, error) {
+func (store *storage) UserFindByProvider(providerName, providerUserId string) (*types.User, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -330,7 +345,7 @@ func (store *fileStorage) UserFindByProvider(providerName, providerUserId string
 	}
 }
 
-func (store *fileStorage) UserPut(user *types.User) error {
+func (store *storage) UserPut(user *types.User) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -339,7 +354,7 @@ func (store *fileStorage) UserPut(user *types.User) error {
 
 	return store.save()
 }
-func (store *fileStorage) UserGet(id string) (*types.User, error) {
+func (store *storage) UserGet(id string) (*types.User, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -350,7 +365,7 @@ func (store *fileStorage) UserGet(id string) (*types.User, error) {
 	}
 }
 
-func (store *fileStorage) PlaygroundPut(playground *types.Playground) error {
+func (store *storage) PlaygroundPut(playground *types.Playground) error {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 
@@ -358,7 +373,7 @@ func (store *fileStorage) PlaygroundPut(playground *types.Playground) error {
 
 	return store.save()
 }
-func (store *fileStorage) PlaygroundGet(id string) (*types.Playground, error) {
+func (store *storage) PlaygroundGet(id string) (*types.Playground, error) {
 	store.rw.Lock()
 	defer store.rw.Unlock()
 	if playground, found := store.db.Playgrounds[id]; !found {
@@ -369,21 +384,7 @@ func (store *fileStorage) PlaygroundGet(id string) (*types.Playground, error) {
 	return nil, NotFoundError
 }
 
-func (store *fileStorage) PlaygroundGetAll() ([]*types.Playground, error) {
-	store.rw.Lock()
-	defer store.rw.Unlock()
-
-	playgrounds := make([]*types.Playground, len(store.db.Playgrounds))
-	i := 0
-	for _, p := range store.db.Playgrounds {
-		playgrounds[i] = p
-		i++
-	}
-
-	return playgrounds, nil
-}
-
-func (store *fileStorage) load() error {
+func (store *storage) load() error {
 	file, err := os.Open(store.path)
 
 	if err == nil {
@@ -412,8 +413,21 @@ func (store *fileStorage) load() error {
 	file.Close()
 	return nil
 }
+func (store *storage) PlaygroundGetAll() ([]*types.Playground, error) {
+	store.rw.Lock()
+	defer store.rw.Unlock()
 
-func (store *fileStorage) save() error {
+	playgrounds := make([]*types.Playground, len(store.db.Playgrounds))
+	i := 0
+	for _, p := range store.db.Playgrounds {
+		playgrounds[i] = p
+		i++
+	}
+
+	return playgrounds, nil
+}
+
+func (store *storage) save() error {
 	file, err := os.Create(store.path)
 	if err != nil {
 		return err
@@ -425,7 +439,7 @@ func (store *fileStorage) save() error {
 }
 
 func NewFileStorage(path string) (StorageApi, error) {
-	s := &fileStorage{path: path}
+	s := &storage{path: path}
 
 	err := s.load()
 	if err != nil {
