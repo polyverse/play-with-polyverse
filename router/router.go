@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -458,27 +457,9 @@ func proxyConn(src, dst net.Conn) {
 	<-errc
 }
 
-func NewRouter(director Director, keyPath string) *proxyRouter {
-	var sshConfig = &ssh.ServerConfig{
-		PublicKeyCallback: func(c ssh.ConnMetadata, pubKey ssh.PublicKey) (*ssh.Permissions, error) {
-			return nil, nil
-		},
-	}
-	privateBytes, err := ioutil.ReadFile(keyPath)
-	if err != nil {
-		log.Fatal("Failed to load private key: ", err)
-	}
-
-	private, err := ssh.ParsePrivateKey(privateBytes)
-	if err != nil {
-		log.Fatal("Failed to parse private key: ", err)
-	}
-
-	sshConfig.AddHostKey(private)
-
+func NewRouter(director Director) *proxyRouter {
 	return &proxyRouter{
 		director:  director,
-		sshConfig: sshConfig,
 		dialer: &net.Dialer{
 			Timeout:   30 * time.Second,
 			KeepAlive: 30 * time.Second,

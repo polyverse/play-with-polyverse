@@ -213,9 +213,6 @@ func routerLookup(protocol, domain string, r *proxyRouter) ([]string, error) {
 }
 
 func TestProxy_TLS(t *testing.T) {
-	dir, private, _, _ := generateKeys()
-	defer os.RemoveAll(dir)
-
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -237,7 +234,7 @@ func TestProxy_TLS(t *testing.T) {
 		u, _ := url.Parse(ts.URL)
 		a, _ := net.ResolveTCPAddr("tcp", u.Host)
 		return &DirectorInfo{Dst: a}, nil
-	}, private)
+	})
 	r.Listen(":0", ":0", ":0")
 	defer r.Close()
 
@@ -255,9 +252,6 @@ func TestProxy_TLS(t *testing.T) {
 }
 
 func TestProxy_Http(t *testing.T) {
-	dir, private, _, _ := generateKeys()
-	defer os.RemoveAll(dir)
-
 	const msg = "It works!"
 
 	var receivedHost string
@@ -274,7 +268,7 @@ func TestProxy_Http(t *testing.T) {
 		u, _ := url.Parse(ts.URL)
 		a, _ := net.ResolveTCPAddr("tcp", u.Host)
 		return &DirectorInfo{Dst: a}, nil
-	}, private)
+	})
 	r.Listen(":0", ":0", ":0")
 	defer r.Close()
 
@@ -294,9 +288,6 @@ func TestProxy_Http(t *testing.T) {
 }
 
 func TestProxy_WS(t *testing.T) {
-	dir, private, _, _ := generateKeys()
-	defer os.RemoveAll(dir)
-
 	const msg = "It works!"
 
 	var serverReceivedMessage string
@@ -327,7 +318,7 @@ func TestProxy_WS(t *testing.T) {
 		u, _ := url.Parse(ts.URL)
 		a, _ := net.ResolveTCPAddr("tcp", u.Host)
 		return &DirectorInfo{Dst: a}, nil
-	}, private)
+	})
 	r.Listen(":0", ":0", ":0")
 	defer r.Close()
 
@@ -352,9 +343,6 @@ func TestProxy_WS(t *testing.T) {
 }
 
 func TestProxy_WSS(t *testing.T) {
-	dir, private, _, _ := generateKeys()
-	defer os.RemoveAll(dir)
-
 	const msg = "It works!"
 
 	var serverReceivedMessage string
@@ -385,7 +373,7 @@ func TestProxy_WSS(t *testing.T) {
 		u, _ := url.Parse(ts.URL)
 		a, _ := net.ResolveTCPAddr("tcp", u.Host)
 		return &DirectorInfo{Dst: a}, nil
-	}, private)
+	})
 	r.Listen(":0", ":0", ":0")
 	defer r.Close()
 
@@ -413,9 +401,6 @@ func TestProxy_WSS(t *testing.T) {
 }
 
 func TestProxy_DNS_UDP(t *testing.T) {
-	dir, private, _, _ := generateKeys()
-	defer os.RemoveAll(dir)
-
 	var receivedHost string
 	var receivedProtocol Protocol
 
@@ -428,7 +413,7 @@ func TestProxy_DNS_UDP(t *testing.T) {
 		} else {
 			return nil, fmt.Errorf("Not recognized")
 		}
-	}, private)
+	})
 	r.Listen(":0", ":0", ":0")
 	defer r.Close()
 
@@ -458,9 +443,6 @@ func TestProxy_DNS_UDP(t *testing.T) {
 }
 
 func TestProxy_DNS_TCP(t *testing.T) {
-	dir, private, _, _ := generateKeys()
-	defer os.RemoveAll(dir)
-
 	var receivedHost string
 
 	r := NewRouter(func(protocol Protocol, host string) (*DirectorInfo, error) {
@@ -471,7 +453,7 @@ func TestProxy_DNS_TCP(t *testing.T) {
 		} else {
 			return nil, fmt.Errorf("Not recognized")
 		}
-	}, private)
+	})
 	r.Listen(":0", ":0", ":0")
 	defer r.Close()
 
@@ -498,9 +480,6 @@ func TestProxy_DNS_TCP(t *testing.T) {
 }
 
 func TestProxy_SSH(t *testing.T) {
-	dir, private, _, _ := generateKeys()
-	defer os.RemoveAll(dir)
-
 	var receivedUser string
 	var receivedPass string
 	var receivedChannelType string
@@ -527,7 +506,7 @@ func TestProxy_SSH(t *testing.T) {
 		} else {
 			return nil, fmt.Errorf("Not recognized")
 		}
-	}, private)
+	})
 	r.Listen(":0", ":0", ":0")
 	defer r.Close()
 

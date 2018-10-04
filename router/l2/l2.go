@@ -1,21 +1,14 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
-	"os"
 	"time"
 
 	"golang.org/x/crypto/ssh"
 
-	client "docker.io/go-docker"
-	"docker.io/go-docker/api/types"
-	"docker.io/go-docker/api/types/filters"
-	"docker.io/go-docker/api/types/network"
 	"github.com/gorilla/mux"
 	"github.com/polyverse/play-with-polyverse/config"
 	"github.com/polyverse/play-with-polyverse/router"
@@ -58,86 +51,8 @@ func director(protocol router.Protocol, host string) (*router.DirectorInfo, erro
 	return &i, nil
 }
 
-func connectNetworks() error {
-	ctx := context.Background()
-	c, err := client.NewEnvClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer c.Close()
-
-	f, err := os.Open(config.SessionsFile)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	networks := map[string]*network.EndpointSettings{}
-
-	err = json.NewDecoder(f).Decode(&networks)
-	if err != nil {
-		return err
-	}
-
-	for netId, opts := range networks {
-		settings := &network.EndpointSettings{}
-		settings.IPAddress = opts.IPAddress
-		log.Printf("Connected to network [%s] with ip [%s]\n", netId, opts.IPAddress)
-		c.NetworkConnect(ctx, netId, config.PWDContainerName, settings)
-	}
-
-	return nil
-}
-
-func monitorNetworks() {
-	c, err := client.NewEnvClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer c.Close()
-
-	ctx := context.Background()
-
-	args := filters.NewArgs()
-
-	cmsg, _ := c.Events(ctx, types.EventsOptions{Filters: args})
-	for {
-		select {
-		case m := <-cmsg:
-			if m.Type == "network" {
-				// Router has been connected to a new network. Let's get all connections and store them in case of restart.
-				container, err := c.ContainerInspect(ctx, config.PWDContainerName)
-				if err != nil {
-					log.Println(err)
-					return
-				}
-
-				f, err := os.Create(config.SessionsFile)
-				if err != nil {
-					log.Println(err)
-					return
-				}
-				err = json.NewEncoder(f).Encode(container.NetworkSettings.Networks)
-				if err != nil {
-					log.Println(err)
-					return
-				}
-				log.Println("Saved networks")
-			}
-		}
-	}
-}
-
 func main() {
 	config.ParseFlags()
-
-	err := connectNetworks()
-	if err != nil && !os.IsNotExist(err) {
-		log.Fatal("connect networks:", err)
-	}
-	go monitorNetworks()
 
 	ro := mux.NewRouter()
 	ro.HandleFunc("/ping", ping).Methods("GET")
@@ -152,7 +67,7 @@ func main() {
 	}
 	go httpServer.ListenAndServe()
 
-	r := router.NewRouter(director, config.SSHKeyPath)
+	r := router.NewRouter(director)
 	r.ListenAndWait(":443", ":53", ":22")
 	defer r.Close()
 }
